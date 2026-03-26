@@ -2,4 +2,4 @@ flask
 yfinance
 numpy
 stable-baselines3
-torch
+gunicorn
