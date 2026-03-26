@@ -1,0 +1,6 @@
+ray_results/
+ray_temp/
+__pycache__/
+*.pkl
+*.log
+*.zip

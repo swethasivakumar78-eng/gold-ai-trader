@@ -1,7 +1,0 @@
-:job_id:01000000
-:actor_name:PPO
-2025-12-15 09:25:19,174	WARNING algorithm_config.py:5045 -- You are running PPO on the new API stack! This is the new default behavior for this algorithm. If you don't want to use the new API stack, set `config.api_stack(enable_rl_module_and_learner=False,enable_env_runner_and_connector_v2=False)`. For a detailed migration guide, see here: https://docs.ray.io/en/master/rllib/new-api-stack-migration-guide.html
-2025-12-15 09:25:34,541	WARNING deprecation.py:50 -- DeprecationWarning: `RLModule(config=[RLModuleConfig object])` has been deprecated. Use `RLModule(observation_space=.., action_space=.., inference_only=.., model_config=.., catalog_class=..)` instead. This will raise an error in the future!
-Trainable.setup took 17.714 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
-Install gputil for GPU system monitoring.
-:actor_name:PPO(env=<class 'trading_environment.TradingEnvironment'>; env-runners=4; learners=0; multi-agent=False)

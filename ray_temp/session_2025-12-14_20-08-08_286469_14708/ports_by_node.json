@@ -1,1 +1,0 @@
-{"127.0.0.1:tcp://127.0.0.1:59233": {"dashboard_agent_listen_port": 52365, "metrics_agent_port": 64287, "metrics_export_port": 55125, "runtime_env_agent_port": 57773, "gcs_server_port": 59105}}
