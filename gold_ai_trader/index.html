@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gold AI Trader</title>
+
+    <!-- ✅ FIXED CSS LINK -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>GOLD AI TRADER</h1>
+
+<input type="number" id="investment" placeholder="Enter Investment ₹">
+<button onclick="startTrading()">Start</button>
+<button onclick="runStep()">Run Step</button>
+<button onclick="downloadReport()">Download Report</button>
+
+<p>Price: ₹ <span id="price"></span></p>
+<p>Action: <span id="action"></span></p>
+<p>Reward: <span id="reward"></span></p>
+
+<h2>Portfolio</h2>
+<p>Balance: ₹ <span id="balance"></span></p>
+<p>Gold: <span id="gold"></span> g</p>
+<p>Profit: ₹ <span id="profit"></span></p>
+
+<h2>AI Explanation</h2>
+<p id="explanation"></p>
+
+<!-- ✅ FIXED JS LINK -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
