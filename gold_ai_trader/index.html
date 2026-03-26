@@ -3,31 +3,47 @@
 <head>
     <title>Gold AI Trader</title>
 
-    <!-- ✅ FIXED CSS LINK -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<h1>GOLD AI TRADER</h1>
+<div class="container">
 
-<input type="number" id="investment" placeholder="Enter Investment ₹">
-<button onclick="startTrading()">Start</button>
-<button onclick="runStep()">Run Step</button>
-<button onclick="downloadReport()">Download Report</button>
+    <h1>💰 GOLD AI TRADER</h1>
 
-<p>Price: ₹ <span id="price"></span></p>
-<p>Action: <span id="action"></span></p>
-<p>Reward: <span id="reward"></span></p>
+    <div class="card">
+        <input type="number" id="investment" placeholder="Enter Investment ₹">
+        <button onclick="startTrading()">Start</button>
+        <button onclick="runStep()">Run Step</button>
+        <button onclick="downloadReport()">Download Report</button>
 
-<h2>Portfolio</h2>
-<p>Balance: ₹ <span id="balance"></span></p>
-<p>Gold: <span id="gold"></span> g</p>
-<p>Profit: ₹ <span id="profit"></span></p>
+        <p>Price: ₹ <span id="price"></span></p>
+        <p>Action: <span id="action"></span></p>
+        <p>Reward: <span id="reward"></span></p>
+    </div>
 
-<h2>AI Explanation</h2>
-<p id="explanation"></p>
+    <div class="card">
+        <h2>Portfolio</h2>
+        <p>Balance: ₹ <span id="balance"></span></p>
+        <p>Gold: <span id="gold"></span> g</p>
+        <p>Profit: ₹ <span id="profit"></span></p>
+    </div>
 
-<!-- ✅ FIXED JS LINK -->
+    <div class="card">
+        <h2>📈 Live Chart</h2>
+        <canvas id="chart"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>🤖 AI Explanation</h2>
+        <p id="explanation"></p>
+    </div>
+
+</div>
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>

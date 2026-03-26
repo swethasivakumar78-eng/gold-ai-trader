@@ -1,3 +1,34 @@
+let prices = [];
+let profits = [];
+
+let chart;
+
+function initChart() {
+    const ctx = document.getElementById('chart').getContext('2d');
+
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Gold Price',
+                    data: prices,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Profit',
+                    data: profits,
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
+
 async function startTrading() {
     const investment = document.getElementById("investment").value;
 
@@ -19,7 +50,7 @@ async function runStep() {
     updateUI(data);
 }
 
-async function downloadReport() {
+function downloadReport() {
     window.location.href = "/download";
 }
 
@@ -33,4 +64,14 @@ function updateUI(data) {
     document.getElementById("profit").innerText = data.profit;
 
     document.getElementById("explanation").innerText = data.explanation;
+
+    // Update chart
+    prices.push(data.price);
+    profits.push(data.profit);
+
+    chart.data.labels.push(prices.length);
+    chart.update();
 }
+
+// Initialize chart on load
+window.onload = initChart;
