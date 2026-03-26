@@ -1,0 +1,72 @@
+Windows fatal exception: access violation
+
+Windows fatal exception: access violation
+
+Windows fatal exception: access violation
+
+Windows fatal exception: access violation
+
+Windows fatal exception: access violation
+
+Windows fatal exception: access violation
+
+*** SIGSEGV received at time=1765771395 ***
+    @   00007FF733AACCF9  (unknown)  (unknown)
+    @   00007FF9A1EDF47F  (unknown)  (unknown)
+    @   00007FF9B92462FF  (unknown)  (unknown)
+    @   00007FF9B90F2327  (unknown)  (unknown)
+    @   00007FF9B9245C3E  (unknown)  (unknown)
+    @   00007FF73334CA2A  (unknown)  (unknown)
+    @   00007FF7333DCB94  (unknown)  (unknown)
+    @   00007FF7333DB66F  (unknown)  (unknown)
+    @   00007FF7333DE9FD  (unknown)  (unknown)
+    @   00007FF73334E3D2  (unknown)  (unknown)
+    @   00007FF7333493B0  (unknown)  (unknown)
+    @   00007FF7332BE9D4  (unknown)  (unknown)
+    @   00007FF7332F8781  (unknown)  (unknown)
+    @   00007FF7330DF2D9  (unknown)  (unknown)
+    @   00007FF73346FBC9  (unknown)  (unknown)
+    @   00007FF73346839E  (unknown)  (unknown)
+    @   00007FF733468928  (unknown)  (unknown)
+    @   00007FF733A1DFBC  (unknown)  (unknown)
+    @   00007FF733A23254  (unknown)  (unknown)
+    @   00007FF733A225B3  (unknown)  (unknown)
+    @   00007FF7330EC26C  (unknown)  (unknown)
+    @   00007FF733A66D78  (unknown)  (unknown)
+    @   00007FF9B6FFE8D7  (unknown)  (unknown)
+    @   00007FF9B916C53C  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474: *** SIGSEGV received at time=1765771395 ***
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF733AACCF9  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF9A1EDF47F  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF9B92462FF  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF9B90F2327  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF9B9245C3E  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF73334CA2A  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7333DCB94  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7333DB66F  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7333DE9FD  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF73334E3D2  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7333493B0  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7332BE9D4  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7332F8781  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7330DF2D9  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF73346FBC9  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF73346839E  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF733468928  (unknown)  (unknown)
+[2025-12-15 09:33:15,720 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF733A1DFBC  (unknown)  (unknown)
+[2025-12-15 09:33:15,721 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF733A23254  (unknown)  (unknown)
+[2025-12-15 09:33:15,721 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF733A225B3  (unknown)  (unknown)
+[2025-12-15 09:33:15,721 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF7330EC26C  (unknown)  (unknown)
+[2025-12-15 09:33:15,721 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF733A66D78  (unknown)  (unknown)
+[2025-12-15 09:33:15,721 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF9B6FFE8D7  (unknown)  (unknown)
+[2025-12-15 09:33:15,721 E 19852 10936] (raylet.exe) logging.cc:474:     @   00007FF9B916C53C  (unknown)  (unknown)
+Windows fatal exception: access violation
+
+Stack (most recent call first):
+  File "C:\Users\sivas\AppData\Roaming\Python\Python311\site-packages\ray\_private\worker.py", line 984 in main_loop
+  File "C:\Users\sivas\AppData\Roaming\Python\Python311\site-packages\ray\_private\workers\default_worker.py", line 323 in <module>
+Windows fatal exception: access violation
+
+Stack (most recent call first):
+  File "C:\Users\sivas\AppData\Roaming\Python\Python311\site-packages\ray\_private\worker.py", line 984 in main_loop
+  File "C:\Users\sivas\AppData\Roaming\Python\Python311\site-packages\ray\_private\workers\default_worker.py", line 323 in <module>

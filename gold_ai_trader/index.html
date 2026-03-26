@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gold AI Trader</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1> GOLD AI TRADER</h1>
+
+<p id="loading"> Loading AI model and market data...</p>
+
+<input id="amount" placeholder="Enter Investment ₹">
+<button onclick="start()">Start</button>
+<button onclick="step()">Run Step</button>
+<button onclick="download()">Download Report</button>
+
+<div class="top">
+    <div class="card">Price: ₹<span id="price"></span></div>
+    <div class="card">Action: <span id="action"></span></div>
+    <div class="card">Reward: <span id="reward"></span></div>
+</div>
+
+<canvas id="chart"></canvas>
+
+<div class="bottom">
+    <div>
+        <h3>Portfolio</h3>
+        Balance: ₹<span id="balance"></span><br>
+        Gold: <span id="gold"></span> g<br>
+        Profit: ₹<span id="profit"></span>
+    </div>
+
+    <div>
+        <h3>AI Explanation</h3>
+        <p id="explanation"></p>
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
