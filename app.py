@@ -62,13 +62,15 @@ def home():
 
 @app.route("/start", methods=["POST"])
 def start():
-    amount = float(request.json["amount"])
-
-    portfolio["balance"] = amount
-    portfolio["gold"] = 0
-    portfolio["initial"] = amount
-
-    return {"status": "started"}
+    return {
+        "price": 7200,
+        "action": "BUY",
+        "reward": 10,
+        "balance": 10000,
+        "gold": 1,
+        "profit": 100,
+        "explanation": "Start working"
+    }
 
 @app.route("/step")
 def step():

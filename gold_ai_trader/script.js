@@ -40,6 +40,8 @@ function initChart() {
 }
 
 async function startTrading() {
+    console.log("Sending request...");  // 👈 ADD HERE
+
     const investment = document.getElementById("investment").value;
 
     if (!investment) {
@@ -55,7 +57,8 @@ async function startTrading() {
         });
 
         const data = await res.json();
-        console.log("START DATA:", data);
+
+        console.log("Response:", data);  // 👈 ADD HERE
 
         updateUI(data);
 
@@ -79,7 +82,7 @@ async function runStep() {
     }
 }
 
-// 🚀 AUTO TRADING LOOP
+//  AUTO TRADING LOOP
 function startAutoTrading() {
     if (autoInterval) return;
 
