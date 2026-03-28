@@ -62,51 +62,51 @@ def home():
 
 @app.route("/start", methods=["POST"])
 def start():
-    return {
-        "price": 7200,
-        "action": "BUY",
-        "reward": 10,
-        "balance": 10000,
-        "gold": 1,
-        "profit": 100,
-        "explanation": "Start working"
+    data = request.json
+    amount = float(data.get("investment", 0))
+
+    global portfolio
+    portfolio = {
+        "balance": amount,
+        "gold": 0,
+        "initial": amount
     }
+
+    return jsonify({
+        "price": 7200,
+        "action": "HOLD",
+        "reward": 0,
+        "balance": portfolio["balance"],
+        "gold": portfolio["gold"],
+        "profit": 0,
+        "explanation": "Trading started successfully"
+    })
 
 @app.route("/step")
 def step():
-    global previous_price
+    import random
 
-    price = get_gold_price_inr()
+    price = random.randint(6800, 7500)
+    action = random.choice(["BUY", "SELL", "HOLD"])
 
-    if previous_price is None:
-        previous_price = price
+    if action == "BUY" and portfolio["balance"] > 0:
+        portfolio["gold"] = portfolio["balance"] / price
+        portfolio["balance"] = 0
 
-    obs = np.array([price] * 11)
+    elif action == "SELL" and portfolio["gold"] > 0:
+        portfolio["balance"] = portfolio["gold"] * price
+        portfolio["gold"] = 0
 
-    # AI prediction
-    if model:
-        action, _ = model.predict(obs)
-        action = int(action)
-    else:
-        action = np.random.choice([0,1,2])
-
-    total, profit = trade(action, price)
-
-    reward = total - portfolio["initial"]
-    explanation = explain(action, price, previous_price)
-
-    previous_price = price
-    history.append(price)
+    profit = portfolio["balance"] + (portfolio["gold"] * price) - portfolio["initial"]
 
     return jsonify({
-        "price": round(price, 2),
-        "action": ["HOLD", "BUY", "SELL"][action],
+        "price": price,
+        "action": action,
+        "reward": round(profit, 2),
         "balance": round(portfolio["balance"], 2),
-        "gold": round(portfolio["gold"], 4),
+        "gold": round(portfolio["gold"], 2),
         "profit": round(profit, 2),
-        "reward": round(reward, 2),
-        "explanation": explanation,
-        "history": history
+        "explanation": f"AI decided to {action}"
     })
 
 @app.route("/report")
