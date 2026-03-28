@@ -1,65 +1,51 @@
 from flask import Flask, render_template, jsonify, request, send_file
 import yfinance as yf
-import numpy as np
-from stable_baselines3 import PPO
-import os
+import random
+
 app = Flask(__name__)
 
-# LOAD MODEL (safe)
-try:
-    model = PPO.load("gold_trading_model.zip")
-    print(" Model Loaded")
-except Exception as e:
-    print(" Model Error:", e)
-    model = None
+# ---------------------------
+# GLOBAL PORTFOLIO
+# ---------------------------
+portfolio = {
+    "balance": 0,
+    "gold": 0,
+    "initial": 0
+}
 
-portfolio = {"balance": 0, "gold": 0, "initial": 0}
-previous_price = None
-history = []
-
-#  FAST GOLD PRICE (with fallback)
+# ---------------------------
+# LIVE GOLD PRICE FUNCTION
+# ---------------------------
 def get_gold_price_inr():
     try:
-        gold = yf.Ticker("GC=F")
-        data = gold.history(period="1d", interval="1m")
+        gold = yf.Ticker("GC=F")  # Gold futures (USD)
+        data = gold.history(period="1d")
 
         if len(data) == 0:
             return 7200
 
         usd_price = data['Close'].iloc[-1]
+
         usd_inr = yf.Ticker("USDINR=X").history(period="1d")['Close'].iloc[-1]
 
-        return float((usd_price * usd_inr) / 31.1035)
-    except:
-        return 7200
+        price_inr = (usd_price * usd_inr) / 31.1035
 
-# Explain AI
-def explain(action, price, prev):
-    if action == 1:
-        return f"BUY → Uptrend ({prev:.2f} → {price:.2f})"
-    elif action == 2:
-        return f"SELL → Downtrend ({prev:.2f} → {price:.2f})"
-    return "HOLD → Market uncertain"
+        return round(price_inr, 2)
 
-# Trade logic
-def trade(action, price):
-    if action == 1 and portfolio["balance"] > 0:
-        portfolio["gold"] = portfolio["balance"] / price
-        portfolio["balance"] = 0
+    except Exception as e:
+        print("Price Fetch Error:", e)
+        return 7200  # fallback
 
-    elif action == 2 and portfolio["gold"] > 0:
-        portfolio["balance"] = portfolio["gold"] * price
-        portfolio["gold"] = 0
-
-    total = portfolio["balance"] + portfolio["gold"] * price
-    profit = total - portfolio["initial"]
-
-    return total, profit
-
+# ---------------------------
+# HOME PAGE
+# ---------------------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
+# ---------------------------
+# START TRADING
+# ---------------------------
 @app.route("/start", methods=["POST"])
 def start():
     data = request.json
@@ -72,68 +58,65 @@ def start():
         "initial": amount
     }
 
+    price = get_gold_price_inr()
+
     return jsonify({
-        "price": 7200,
+        "price": price,
         "action": "HOLD",
         "reward": 0,
         "balance": portfolio["balance"],
         "gold": portfolio["gold"],
         "profit": 0,
-        "explanation": "Trading started successfully"
+        "explanation": "Trading started with live gold price"
     })
 
+# ---------------------------
+# STEP (AI DECISION)
+# ---------------------------
 @app.route("/step")
 def step():
-    import random
+    global portfolio
 
-    price = random.randint(6800, 7500)
+    price = get_gold_price_inr()
+
     action = random.choice(["BUY", "SELL", "HOLD"])
 
+    # BUY
     if action == "BUY" and portfolio["balance"] > 0:
         portfolio["gold"] = portfolio["balance"] / price
         portfolio["balance"] = 0
 
+    # SELL
     elif action == "SELL" and portfolio["gold"] > 0:
         portfolio["balance"] = portfolio["gold"] * price
         portfolio["gold"] = 0
 
-    profit = portfolio["balance"] + (portfolio["gold"] * price) - portfolio["initial"]
+    # CALCULATE PROFIT
+    current_value = portfolio["balance"] + (portfolio["gold"] * price)
+    profit = current_value - portfolio["initial"]
 
     return jsonify({
-        "price": price,
+        "price": round(price, 2),
         "action": action,
         "reward": round(profit, 2),
         "balance": round(portfolio["balance"], 2),
         "gold": round(portfolio["gold"], 2),
         "profit": round(profit, 2),
-        "explanation": f"AI decided to {action}"
+        "explanation": f"AI decided to {action} based on market trend"
     })
 
-@app.route("/report")
-def report():
-    total = portfolio["balance"] + portfolio["gold"] * previous_price
-    profit = total - portfolio["initial"]
+# ---------------------------
+# DOWNLOAD REPORT 
+# ---------------------------
+@app.route("/download")
+def download():
+    return "Report feature coming soon!"
 
-    text = f"""
-GOLD TRADING AI REPORT
-
-Initial Investment: ₹{portfolio['initial']}
-Final Value: ₹{round(total,2)}
-Profit: ₹{round(profit,2)}
-
-AI Strategy:
-- Buy during upward trends
-- Sell during downward trends
-- Hold during uncertainty
-"""
-
-    with open("report.txt", "w") as f:
-        f.write(text)
-
-    return send_file("report.txt", as_attachment=True)
-
-#  FAST RUN (no double reload)
+# ---------------------------
+# RUN APP
+# ---------------------------
 if __name__ == "__main__":
     print("Server starting...")
+    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
