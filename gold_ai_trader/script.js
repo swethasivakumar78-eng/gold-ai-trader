@@ -1,8 +1,18 @@
 let chart;
 let prices = [];
 
+console.log("JS LOADED SUCCESSFULLY");
+
+// ---------------- CHART ----------------
 function initChart() {
-    const ctx = document.getElementById("chart").getContext("2d");
+    const canvas = document.getElementById("chart");
+
+    if (!canvas) {
+        console.error("Chart canvas not found ❌");
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
 
     chart = new Chart(ctx, {
         type: "line",
@@ -18,17 +28,26 @@ function initChart() {
 }
 
 function updateChart(price) {
+    if (!chart) return;
+
     prices.push(price);
     chart.data.labels.push(prices.length);
     chart.data.datasets[0].data = prices;
     chart.update();
 }
 
-// START BUTTON FUNCTION
+// ---------------- START ----------------
 function startTrading() {
+    console.log("Start button clicked");
+
     const investment = document.getElementById("investment").value;
 
-    console.log("Sending request...");
+    if (!investment || investment <= 0) {
+        alert("Enter valid investment amount ❌");
+        return;
+    }
+
+    console.log("Sending request...", investment);
 
     fetch("/start", {
         method: "POST",
@@ -39,9 +58,12 @@ function startTrading() {
             investment: investment
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        console.log("Response status:", res.status);
+        return res.json();
+    })
     .then(data => {
-        console.log("Response:", data);
+        console.log("API RESPONSE:", data);
 
         document.getElementById("price").innerText = data.price;
         document.getElementById("action").innerText = data.action;
@@ -54,14 +76,21 @@ function startTrading() {
         document.getElementById("explanation").innerText = data.explanation;
 
         updateChart(data.price);
+    })
+    .catch(err => {
+        console.error("FETCH ERROR ❌:", err);
     });
 }
 
-//  STEP BUTTON
+// ---------------- STEP ----------------
 function runStep() {
+    console.log("Run Step clicked");
+
     fetch("/step")
     .then(res => res.json())
     .then(data => {
+        console.log("STEP RESPONSE:", data);
+
         document.getElementById("price").innerText = data.price;
         document.getElementById("action").innerText = data.action;
         document.getElementById("reward").innerText = data.reward;
@@ -73,8 +102,12 @@ function runStep() {
         document.getElementById("explanation").innerText = data.explanation;
 
         updateChart(data.price);
-    });
+    })
+    .catch(err => console.error("STEP ERROR:", err));
 }
 
-// INIT CHART ON LOAD
-window.onload = initChart;
+// ---------------- INIT ----------------
+window.onload = function () {
+    console.log("Window loaded");
+    initChart();
+};
