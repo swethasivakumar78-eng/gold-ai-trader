@@ -3,50 +3,56 @@
 <head>
     <title>Gold AI Trader</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
-<div class="container">
+    <h1 style="text-align:center;">GOLD AI TRADER</h1>
 
-    <h1>💰 GOLD AI TRADER</h1>
-
-    <div class="card">
+    <div style="text-align:center; margin-bottom:20px;">
         <input type="number" id="investment" placeholder="Enter Investment ₹">
+        
         <button onclick="startTrading()">Start</button>
         <button onclick="runStep()">Run Step</button>
         <button onclick="downloadReport()">Download Report</button>
-        <button onclick="startAutoTrading()">Auto Start</button>
-        <button onclick="stopAutoTrading()">Stop</button>
-
-        <p>Price: ₹ <span id="price"></span></p>
-        <p>Action: <span id="action"></span></p>
-        <p>Reward: <span id="reward"></span></p>
     </div>
 
-    <div class="card">
-        <h2>Portfolio</h2>
-        <p>Balance: ₹ <span id="balance"></span></p>
-        <p>Gold: <span id="gold"></span> g</p>
-        <p>Profit: ₹ <span id="profit"></span></p>
+    <!-- STATUS -->
+    <div style="display:flex; justify-content:space-around;">
+        <div>Price: ₹ <span id="price">0</span></div>
+        <div>Action: <span id="action">-</span></div>
+        <div>Reward: <span id="reward">0</span></div>
     </div>
 
-    <div class="card">
-        <h2>📈 Live Chart</h2>
+    <!-- CHART -->
+    <div style="width:70%; margin:auto; margin-top:30px;">
         <canvas id="chart"></canvas>
     </div>
 
-    <div class="card">
-        <h2>🤖 AI Explanation</h2>
-        <p id="explanation"></p>
+    <!-- PORTFOLIO -->
+    <div style="display:flex; justify-content:space-around; margin-top:40px;">
+
+        <div>
+            <h3>Portfolio</h3>
+            <p>Balance: ₹ <span id="balance">0</span></p>
+            <p>Gold: <span id="gold">0</span> g</p>
+            <p>Profit: ₹ <span id="profit">0</span></p>
+        </div>
+
+        <div>
+            <h3>AI Explanation</h3>
+            <p id="explanation">Waiting for action...</p>
+        </div>
+
     </div>
 
-</div>
-
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 </html>
