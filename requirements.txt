@@ -1,7 +1,3 @@
 Flask
 gunicorn
 requests
-pandas
-numpy
-stable-baselines3
-torch==2.0.1

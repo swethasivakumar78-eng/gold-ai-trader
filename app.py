@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify, render_template
 import random
 import requests
 import os
-import pandas as pd
-from stable_baselines3 import PPO
+
+
 
 app = Flask(__name__)
 
@@ -54,38 +54,14 @@ ddef get_live_gold_price():
         return 7200   # stable fallback (not random)
 
 # ---------------- AI MODEL ACTION ----------------
-def get_action():
-    global current_step
-
-    try:
-        load_model()   # 🔥 IMPORTANT
-
-        if model is None or df is None:
-            return random.choice(["BUY", "SELL", "HOLD"])
-
-        if current_step >= len(df):
-            current_step = 0
-
-        state = df.iloc[current_step].values
-
-        action, _ = model.predict(state)
-
-        current_step += 1
-
-        if action == 0:
-            return "HOLD"
-        elif action == 1:
-            return "BUY"
-        elif action == 2:
-            return "SELL"
-
+def get_action(price):
+    if price > 10000:
+        return "SELL"
+    elif price < 10000:
+        return "BUY"
+    else:
         return "HOLD"
-
-    except Exception as e:
-        print("ACTION ERROR:", e)
-        return "HOLD"
-
-
+   
 # ---------------- ROUTES ----------------
 @app.route("/")
 def home():
@@ -126,7 +102,7 @@ def start():
         })
 
     price = get_live_gold_price()
-    action = get_action()
+    action = get_action(price)
 
     reward = random.uniform(-5, 5)
 
