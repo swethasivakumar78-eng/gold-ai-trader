@@ -36,7 +36,7 @@ def load_model():
 
 
 # ---------------- LIVE GOLD PRICE ----------------
-ddef get_live_gold_price():
+def get_live_gold_price():
     try:
         url = "https://api.gold-api.com/price/XAU"
         res = requests.get(url, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
