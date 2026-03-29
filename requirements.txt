@@ -1,5 +1,7 @@
-flask
-yfinance
+Flask
+gunicorn
+requests
+pandas
 numpy
 stable-baselines3
-gunicorn
+torch
