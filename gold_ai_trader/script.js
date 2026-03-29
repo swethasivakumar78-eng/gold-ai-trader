@@ -109,8 +109,6 @@ Profit: ${profit.innerText}
 
 // ---------------- INIT ----------------
 window.onload = function () {
-    console.log("Page Loaded");
-
     initChart();
 
     document.getElementById("startBtn").addEventListener("click", startTrading);

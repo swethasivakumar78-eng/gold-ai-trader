@@ -8,30 +8,6 @@ app = Flask(__name__)
 # ---------------- GLOBALS ----------------
 balance = 10000
 gold = 0
-current_step = 0
-
-# ---------------- LOAD MODEL ----------------
-model = None
-df = None
-
-def load_model():
-    global model, df
-
-    if model is None or df is None:
-        try:
-            print("Loading model...")
-            model = PPO.load("gold_trading_model.zip")
-
-            print("Loading dataset...")
-            df = pd.read_csv("gold_and_macro_data.csv")
-
-            print("Model loaded successfully")
-
-        except Exception as e:
-            print("MODEL LOAD ERROR:", e)
-            model = None
-            df = None
-
 
 # ---------------- LIVE GOLD PRICE ----------------
 def get_live_gold_price():
@@ -45,105 +21,110 @@ def get_live_gold_price():
         if usd_price == 0:
             raise Exception("Invalid API response")
 
+        # Convert USD → INR
         return round(usd_price * 83, 2)
 
     except Exception as e:
         print("API ERROR:", e)
-        return 7200   # stable fallback (not random)
+        return 14000   # fallback based on real Indian price
 
-# ---------------- AI MODEL ACTION ----------------
+# ---------------- SMART TRADING LOGIC ----------------
 def get_action(price):
-    if price > 10000:
-        return "SELL"
-    elif price < 10000:
-        return "BUY"
+    if price > 14500:
+        return random.choice(["SELL", "HOLD"])
+    elif price < 13500:
+        return random.choice(["BUY", "HOLD"])
     else:
         return "HOLD"
-   
+
 # ---------------- ROUTES ----------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
 @app.route("/start", methods=["POST"])
 def start():
     global balance, gold
 
-    data = request.get_json()
-
-    if not data or "investment" not in data:
-        return jsonify({
-            "price": 7200,
-            "action": "HOLD",
-            "reward": 0,
-            "balance": balance,
-            "gold": gold,
-            "profit": 0,
-            "explanation": "Investment missing"
-        })
-
     try:
+        data = request.get_json()
         investment = float(data.get("investment", 0))
-    except:
-        investment = 0
 
-    if investment <= 0:
+        if investment <= 0:
+            raise Exception("Invalid investment")
+
+        price = get_live_gold_price()
+        action = get_action(price)
+
+        reward = random.uniform(-5, 5)
+
+        if action == "BUY":
+            gold += investment / price
+            balance -= investment
+        elif action == "SELL" and gold > 0:
+            balance += gold * price
+            gold = 0
+
+        profit = balance + gold * price - 10000
+
         return jsonify({
-            "price": 7200,
+            "price": price,
+            "action": action,
+            "reward": round(reward, 2),
+            "balance": round(balance, 2),
+            "gold": round(gold, 4),
+            "profit": round(profit, 2),
+            "explanation": f"AI decided to {action} based on price level"
+        })
+
+    except Exception as e:
+        print("START ERROR:", e)
+
+        return jsonify({
+            "price": 14000,
             "action": "HOLD",
             "reward": 0,
             "balance": balance,
             "gold": gold,
             "profit": 0,
-            "explanation": "Invalid investment"
+            "explanation": "Fallback response"
         })
-
-    price = get_live_gold_price()
-    action = get_action(price)
-
-    reward = random.uniform(-5, 5)
-
-    if action == "BUY":
-        gold += investment / price
-        balance -= investment
-    elif action == "SELL" and gold > 0:
-        balance += gold * price
-        gold = 0
-
-    profit = balance + gold * price - 10000
-
-    return jsonify({
-        "price": price,
-        "action": action,
-        "reward": round(reward, 2),
-        "balance": round(balance, 2),
-        "gold": round(gold, 4),
-        "profit": round(profit, 2),
-        "explanation": f"AI decided to {action}"
-    })
-
 
 @app.route("/step")
 def step():
     global balance, gold
 
-    price = get_live_gold_price()
-    action = get_action(price)   #  FIX
+    try:
+        price = get_live_gold_price()
+        action = get_action(price)
 
-    reward = random.uniform(-5, 5)
+        reward = random.uniform(-5, 5)
 
-    profit = balance + gold * price - 10000
+        profit = balance + gold * price - 10000
 
-    return jsonify({
-        "price": price,
-        "action": action,
-        "reward": round(reward, 2),
-        "balance": round(balance, 2),
-        "gold": round(gold, 4),
-        "profit": round(profit, 2),
-        "explanation": f"Market suggests {action}"
-    })
+        return jsonify({
+            "price": price,
+            "action": action,
+            "reward": round(reward, 2),
+            "balance": round(balance, 2),
+            "gold": round(gold, 4),
+            "profit": round(profit, 2),
+            "explanation": f"Market suggests {action}"
+        })
+
+    except Exception as e:
+        print("STEP ERROR:", e)
+
+        return jsonify({
+            "price": 14000,
+            "action": "HOLD",
+            "reward": 0,
+            "balance": balance,
+            "gold": gold,
+            "profit": 0,
+            "explanation": "Fallback step response"
+        })
+
 # ---------------- RUN ----------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
