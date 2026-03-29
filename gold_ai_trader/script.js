@@ -8,7 +8,7 @@ function initChart() {
     const canvas = document.getElementById("chart");
 
     if (!canvas) {
-        console.error("Chart canvas not found ❌");
+        console.error("Chart canvas not found ");
         return;
     }
 
@@ -38,82 +38,60 @@ function updateChart(price) {
 
 // ---------------- START ----------------
 function startTrading() {
-    console.log("Start button clicked");
-
     const investment = document.getElementById("investment").value;
 
     if (!investment || investment <= 0) {
-        alert("Enter valid investment amount");
+        alert("Enter valid investment");
         return;
     }
 
-    console.log("Sending request...", investment);
+    console.log("Calling START API...");
 
-    fetch("/start", {
+    fetch(window.location.origin + "/start", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            investment: investment
-        })
+        body: JSON.stringify({ investment: investment })
     })
     .then(res => {
-        console.log("Response status:", res.status);
+        console.log("Status:", res.status);
         return res.json();
     })
-    .then(data => {   // CORRECT
+    .then(data => {
+        console.log("START RESPONSE:", data);
 
-        console.log("API RESPONSE:", data);
-
-        if (!data.action) {
-            console.error("Invalid API response", data);
+        if (!data || !data.price) {
+            alert("Invalid response from server");
             return;
         }
 
-        document.getElementById("price").innerText = data.price;
-        document.getElementById("action").innerText = data.action;
-        document.getElementById("reward").innerText = data.reward;
-
-        document.getElementById("balance").innerText = data.balance;
-        document.getElementById("gold").innerText = data.gold;
-        document.getElementById("profit").innerText = data.profit;
-
-        document.getElementById("explanation").innerText = data.explanation;
-
-        updateChart(data.price);
+        updateUI(data);
     })
     .catch(err => {
-        console.error("FETCH ERROR :", err);
+        console.error("START ERROR:", err);
+        alert("Backend not responding");
     });
 }
 
 // ---------------- STEP ----------------
 function runStep() {
-    console.log("Run Step clicked");
+    console.log("Calling STEP API...");
 
-    fetch("/step")
-    .then(res => res.json())
+    fetch(window.location.origin + "/step")
+    .then(res => {
+        console.log("STEP Status:", res.status);
+        return res.json();
+    })
     .then(data => {
         console.log("STEP RESPONSE:", data);
 
-        document.getElementById("price").innerText = data.price;
-        document.getElementById("action").innerText = data.action;
-        document.getElementById("reward").innerText = data.reward;
+        if (!data || !data.price) {
+            console.error("Invalid step data");
+            return;
+        }
 
-        document.getElementById("balance").innerText = data.balance;
-        document.getElementById("gold").innerText = data.gold;
-        document.getElementById("profit").innerText = data.profit;
-
-        document.getElementById("explanation").innerText = data.explanation;
-
-        updateChart(data.price);
+        updateUI(data);
     })
     .catch(err => console.error("STEP ERROR:", err));
 }
-
-// ---------------- INIT ----------------
-window.onload = function () {
-    console.log("Window loaded");
-    initChart();
-};
