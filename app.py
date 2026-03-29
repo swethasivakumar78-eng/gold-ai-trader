@@ -3,8 +3,6 @@ import random
 import requests
 import os
 
-
-
 app = Flask(__name__)
 
 # ---------------- GLOBALS ----------------
