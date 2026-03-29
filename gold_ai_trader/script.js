@@ -95,3 +95,14 @@ function runStep() {
     })
     .catch(err => console.error("STEP ERROR:", err));
 }
+
+window.onload = function () {
+    console.log("Page loaded");
+
+    initChart();
+
+    // Attach button events
+    document.getElementById("startBtn").addEventListener("click", startTrading);
+    document.getElementById("stepBtn").addEventListener("click", runStep);
+    document.getElementById("downloadBtn").addEventListener("click", downloadReport);
+};
