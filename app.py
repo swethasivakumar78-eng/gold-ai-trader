@@ -129,7 +129,7 @@ def step():
     global balance, gold
 
     price = get_live_gold_price()
-    action = get_action()
+    action = get_action(price)   #  FIX
 
     reward = random.uniform(-5, 5)
 
@@ -144,8 +144,6 @@ def step():
         "profit": round(profit, 2),
         "explanation": f"Market suggests {action}"
     })
-
-
 # ---------------- RUN ----------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
