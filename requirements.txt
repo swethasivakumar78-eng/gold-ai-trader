@@ -4,4 +4,4 @@ requests
 pandas
 numpy
 stable-baselines3
-torch
+torch==2.0.1
