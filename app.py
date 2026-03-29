@@ -48,7 +48,11 @@ def home():
 # ---------------------------
 @app.route("/start", methods=["POST"])
 def start():
-    data = request.json
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "No data received"}), 400
+
     amount = float(data.get("investment", 0))
 
     global portfolio
@@ -67,7 +71,7 @@ def start():
         "balance": portfolio["balance"],
         "gold": portfolio["gold"],
         "profit": 0,
-        "explanation": "Trading started with live gold price"
+        "explanation": "Trading started successfully"
     })
 
 # ---------------------------
@@ -79,39 +83,51 @@ def step():
 
     price = get_gold_price_inr()
 
-    action = random.choice(["BUY", "SELL", "HOLD"])
-
-    # BUY
-    if action == "BUY" and portfolio["balance"] > 0:
+    # SIMPLE LOGIC (NO RANDOM BUGS)
+    if portfolio["balance"] > 0:
+        action = "BUY"
         portfolio["gold"] = portfolio["balance"] / price
         portfolio["balance"] = 0
 
-    # SELL
-    elif action == "SELL" and portfolio["gold"] > 0:
+    elif portfolio["gold"] > 0:
+        action = "SELL"
         portfolio["balance"] = portfolio["gold"] * price
         portfolio["gold"] = 0
 
-    # CALCULATE PROFIT
-    current_value = portfolio["balance"] + (portfolio["gold"] * price)
-    profit = current_value - portfolio["initial"]
+    else:
+        action = "HOLD"
+
+    total = portfolio["balance"] + (portfolio["gold"] * price)
+    profit = total - portfolio["initial"]
 
     return jsonify({
         "price": round(price, 2),
         "action": action,
         "reward": round(profit, 2),
         "balance": round(portfolio["balance"], 2),
-        "gold": round(portfolio["gold"], 2),
+        "gold": round(portfolio["gold"], 4),
         "profit": round(profit, 2),
-        "explanation": f"AI decided to {action} based on market trend"
+        "explanation": f"{action} executed based on portfolio state"
     })
-
 # ---------------------------
 # DOWNLOAD REPORT 
 # ---------------------------
 @app.route("/download")
 def download():
-    return "Report feature coming soon!"
+    text = f"""
+GOLD TRADING REPORT
 
+Initial Investment: ₹{portfolio['initial']}
+Current Balance: ₹{portfolio['balance']}
+Gold Holdings: {portfolio['gold']} g
+
+Thank you for using Gold AI Trader!
+"""
+
+    with open("report.txt", "w") as f:
+        f.write(text)
+
+    return send_file("report.txt", as_attachment=True)
 # ---------------------------
 # RUN APP
 # ---------------------------

@@ -43,7 +43,7 @@ function startTrading() {
     const investment = document.getElementById("investment").value;
 
     if (!investment || investment <= 0) {
-        alert("Enter valid investment amount ❌");
+        alert("Enter valid investment amount");
         return;
     }
 
@@ -62,8 +62,14 @@ function startTrading() {
         console.log("Response status:", res.status);
         return res.json();
     })
-    .then(data => {
+    .then(data => {   // CORRECT
+
         console.log("API RESPONSE:", data);
+
+        if (!data.action) {
+            console.error("Invalid API response", data);
+            return;
+        }
 
         document.getElementById("price").innerText = data.price;
         document.getElementById("action").innerText = data.action;
@@ -78,7 +84,7 @@ function startTrading() {
         updateChart(data.price);
     })
     .catch(err => {
-        console.error("FETCH ERROR ❌:", err);
+        console.error("FETCH ERROR :", err);
     });
 }
 
