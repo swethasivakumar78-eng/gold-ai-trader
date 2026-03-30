@@ -6,33 +6,39 @@ import os
 app = Flask(__name__)
 
 # ---------------- GLOBALS ----------------
-balance = 10000
-gold = 0
+balance = 10000.0
+gold = 0.0
 
-# ---------------- LIVE GOLD PRICE ----------------
+# ---------------- LIVE GOLD PRICE (INDIA) ----------------
 def get_live_gold_price():
     try:
         url = "https://api.gold-api.com/price/XAU"
-        res = requests.get(url, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
+        # Increased timeout to 15s to survive Render's slow "cold starts"
+        res = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
         data = res.json()
 
-        usd_price = data.get("price", 0)
+        usd_price_per_ounce = data.get("price", 0)
 
-        if usd_price == 0:
+        if usd_price_per_ounce == 0:
             raise Exception("Invalid API response")
 
-        # Convert USD → INR
-        return round(usd_price * 83, 2)
+        # Convert USD to INR (Approx ₹83.5 per $1)
+        # 1 Troy Ounce = 31.1035 grams
+        inr_per_gram = (usd_price_per_ounce / 31.1035) * 83.5
+        
+        return round(inr_per_gram, 2)
 
     except Exception as e:
         print("API ERROR:", e)
-        return 14000   # fallback based on real Indian price
+        # Fallback to roughly ₹7500 per gram if the API is unreachable
+        return 7500.00   
 
 # ---------------- SMART TRADING LOGIC ----------------
 def get_action(price):
-    if price > 14500:
+    # Updated thresholds for 1 gram of gold in INR
+    if price > 8000:
         return random.choice(["SELL", "HOLD"])
-    elif price < 13500:
+    elif price < 7000:
         return random.choice(["BUY", "HOLD"])
     else:
         return "HOLD"
@@ -50,12 +56,11 @@ def start():
         data = request.get_json()
         investment = float(data.get("investment", 0))
 
-        if investment <= 0:
-            raise Exception("Invalid investment")
+        if investment <= 0 or investment > balance:
+            return jsonify({"error": "Invalid or insufficient investment funds"}), 400
 
         price = get_live_gold_price()
         action = get_action(price)
-
         reward = random.uniform(-5, 5)
 
         if action == "BUY":
@@ -65,7 +70,7 @@ def start():
             balance += gold * price
             gold = 0
 
-        profit = balance + gold * price - 10000
+        profit = balance + (gold * price) - 10000
 
         return jsonify({
             "price": price,
@@ -74,33 +79,21 @@ def start():
             "balance": round(balance, 2),
             "gold": round(gold, 4),
             "profit": round(profit, 2),
-            "explanation": f"AI decided to {action} based on price level"
+            "explanation": f"AI decided to {action} based on market price"
         })
 
     except Exception as e:
         print("START ERROR:", e)
-
-        return jsonify({
-            "price": 14000,
-            "action": "HOLD",
-            "reward": 0,
-            "balance": balance,
-            "gold": gold,
-            "profit": 0,
-            "explanation": "Fallback response"
-        })
+        return jsonify({"error": "Failed to calculate start. Try again."}), 500
 
 @app.route("/step")
 def step():
     global balance, gold
-
     try:
         price = get_live_gold_price()
         action = get_action(price)
-
         reward = random.uniform(-5, 5)
-
-        profit = balance + gold * price - 10000
+        profit = balance + (gold * price) - 10000
 
         return jsonify({
             "price": price,
@@ -111,19 +104,9 @@ def step():
             "profit": round(profit, 2),
             "explanation": f"Market suggests {action}"
         })
-
     except Exception as e:
         print("STEP ERROR:", e)
-
-        return jsonify({
-            "price": 14000,
-            "action": "HOLD",
-            "reward": 0,
-            "balance": balance,
-            "gold": gold,
-            "profit": 0,
-            "explanation": "Fallback step response"
-        })
+        return jsonify({"error": "Server network error"}), 500
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
