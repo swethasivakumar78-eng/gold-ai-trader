@@ -29,35 +29,28 @@ function updateChart(price) {
 
 // ---------------- START ----------------
 function startTrading() {
-    const investment = document.getElementById("investment").value;
+    const investmentInput = document.getElementById("investment").value;
 
-    if (!investment || investment <= 0) {
-        alert("Enter valid investment");
+    if (!investmentInput || isNaN(investmentInput) || Number(investmentInput) <= 0) {
+        alert("Enter valid investment amount");
         return;
     }
 
-    console.log("Calling START API...");
+    const investment = Number(investmentInput);  //FIX
 
-    fetch(window.location.origin + "/start", {
+    fetch("/start", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            investment: Number(investment)
+            investment: investment   //FIX
         })
     })
-    .then(res => {
-        console.log("Status:", res.status);
-        return res.json();
-    })
-    .then(data => {
-        console.log("START RESPONSE:", data);
-        updateUI(data);
-    })
+    .then(res => res.json())
+    .then(data => updateUI(data))
     .catch(err => console.error("ERROR:", err));
 }
-
 // ---------------- STEP ----------------
 function runStep() {
     console.log("Calling STEP API...");
