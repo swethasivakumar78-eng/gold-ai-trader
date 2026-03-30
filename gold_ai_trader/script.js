@@ -36,11 +36,11 @@ function startTrading() {
     const investment = Number(investmentInput);
 
     if (!investmentInput || isNaN(investment) || investment <= 0) {
-        alert("Enter valid investment amount");
+        document.getElementById("explanation").innerText = "⚠️ Please enter a valid investment amount.";
         return;
     }
 
-    // Tell the user it's loading (Render can be slow!)
+    // Tell the user it's loading
     document.getElementById("explanation").innerText = "Loading live market data...";
 
     fetch("/start", {
@@ -48,29 +48,29 @@ function startTrading() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ investment: investment })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.error) {
-            alert(data.error);
-            document.getElementById("explanation").innerText = "Error: " + data.error;
-            return;
+    .then(async res => {
+        const data = await res.json();
+        // If the server rejected it (like our 400 error), force it to show the error
+        if (!res.ok) {
+            throw new Error(data.error || "Network error");
         }
-
-        // Clear the chart for a fresh start
+        return data;
+    })
+    .then(data => {
+        // Success! Clear the chart and start the loop
         prices = [];
         chart.data.labels = [];
         updateUI(data);
 
-        // Safely start the background loop every 10 seconds
         clearInterval(autoTradeInterval); 
         autoTradeInterval = setInterval(runStep, 10000);
     })
     .catch(err => {
         console.error("ERROR:", err);
-        document.getElementById("explanation").innerText = "Failed to start. Server might be waking up.";
+        // Display the error directly on the screen so you can read it!
+        document.getElementById("explanation").innerText = "⚠️ Error: " + err.message;
     });
 }
-
 // ---------------- STEP ----------------
 function runStep() {
     fetch("/step")

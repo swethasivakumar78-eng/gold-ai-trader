@@ -53,11 +53,18 @@ def start():
     global balance, gold
 
     try:
-        data = request.get_json()
+        # force=True makes Flask try to read the JSON even if headers are slightly off
+        data = request.get_json(force=True, silent=True) or {}
+        print("RECEIVED DATA:", data)  # This will log in Render so we can debug!
+
         investment = float(data.get("investment", 0))
 
-        if investment <= 0 or investment > balance:
-            return jsonify({"error": "Invalid or insufficient investment funds"}), 400
+        # Break the errors apart so you know exactly which one is triggering
+        if investment <= 0:
+            return jsonify({"error": "Enter an amount greater than 0"}), 400
+            
+        if investment > balance:
+            return jsonify({"error": f"Insufficient funds! Your balance is only ₹{balance}"}), 400
 
         price = get_live_gold_price()
         action = get_action(price)
