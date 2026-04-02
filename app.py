@@ -14,8 +14,7 @@ portfolio = {
 # ---------------- LIVE GOLD PRICE ----------------
 def get_gold_price_inr():
     try:
-        gold = yf.Ticker("GC=F")
-        data = gold.history(period="1d")
+        import yfinance as yf
 
         if data.empty:
             return 7200
