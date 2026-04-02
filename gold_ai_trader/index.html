@@ -4,29 +4,32 @@
     <title>Gold AI Trader</title>
 
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body style="font-family: Arial; background:#0f172a; color:white;">
 
-    <h1 style="text-align:center;">GOLD AI TRADER</h1>
+    <h1 style="text-align:center;">💰 GOLD AI TRADER</h1>
 
-    <div style="text-align:center; margin-bottom:20px;">
-        <input type="number" id="investment" placeholder="Enter Investment ₹">
-        
-        <button id="startBtn">Start</button>
-        <button id="stepBtn">Run Step</button>
-        <button id="downloadBtn">Download Report</button>
+    <!-- INPUT + BUTTONS -->
+    <div style="text-align:center; margin:20px;">
+        <input type="number" id="investment" placeholder="Enter Investment ₹" style="padding:10px; width:200px;">
+
+        <br><br>
+
+        <button onclick="startTrading()">Start</button>
+        <button onclick="runStep()">Run Step</button>
+        <button onclick="downloadReport()">Download Report</button>
     </div>
 
     <!-- STATUS -->
-    <div style="display:flex; justify-content:space-around;">
-        <div>Price: ₹ <span id="price">0</span></div>
-        <div>Action: <span id="action">-</span></div>
-        <div>Reward: <span id="reward">0</span></div>
+    <div style="display:flex; justify-content:space-around; margin-top:20px;">
+        <div>💰 Price: ₹ <span id="price">0</span></div>
+        <div>⚡ Action: <span id="action">-</span></div>
+        <div>🎯 Reward: <span id="reward">0</span></div>
     </div>
 
     <!-- CHART -->
@@ -37,15 +40,15 @@
     <!-- PORTFOLIO -->
     <div style="display:flex; justify-content:space-around; margin-top:40px;">
 
-        <div>
-            <h3>Portfolio</h3>
+        <div style="background:#1e293b; padding:20px; border-radius:10px;">
+            <h3>📊 Portfolio</h3>
             <p>Balance: ₹ <span id="balance">0</span></p>
             <p>Gold: <span id="gold">0</span> g</p>
             <p>Profit: ₹ <span id="profit">0</span></p>
         </div>
 
-        <div>
-            <h3>AI Explanation</h3>
+        <div style="background:#1e293b; padding:20px; border-radius:10px;">
+            <h3>🤖 AI Explanation</h3>
             <p id="explanation">Waiting for action...</p>
         </div>
 

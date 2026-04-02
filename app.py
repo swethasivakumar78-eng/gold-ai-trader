@@ -1,120 +1,131 @@
-from flask import Flask, request, jsonify, render_template
-import random
-import requests
+from flask import Flask, render_template, jsonify, request, send_file
+import yfinance as yf
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates", static_folder="static")
 
-# ---------------- GLOBALS ----------------
-balance = 10000.0
-gold = 0.0
+# ---------------- GLOBAL PORTFOLIO ----------------
+portfolio = {
+    "balance": 0,
+    "gold": 0,
+    "initial": 0
+}
 
-# ---------------- LIVE GOLD PRICE (INDIA) ----------------
-def get_live_gold_price():
+# ---------------- LIVE GOLD PRICE ----------------
+def get_gold_price_inr():
     try:
-        url = "https://api.gold-api.com/price/XAU"
-        # Increased timeout to 15s to survive Render's slow "cold starts"
-        res = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
-        data = res.json()
+        gold = yf.Ticker("GC=F")
+        data = gold.history(period="1d")
 
-        usd_price_per_ounce = data.get("price", 0)
+        if data.empty:
+            return 7200
 
-        if usd_price_per_ounce == 0:
-            raise Exception("Invalid API response")
+        usd_price = data["Close"].iloc[-1]
 
-        # Convert USD to INR (Approx ₹83.5 per $1)
-        # 1 Troy Ounce = 31.1035 grams
-        inr_per_gram = (usd_price_per_ounce / 31.1035) * 83.5
-        
-        return round(inr_per_gram, 2)
+        usd_inr = yf.Ticker("USDINR=X").history(period="1d")["Close"].iloc[-1]
+
+        price_inr = (usd_price * usd_inr) / 31.1035
+
+        return round(price_inr, 2)
 
     except Exception as e:
-        print("API ERROR:", e)
-        # Fallback to roughly ₹7500 per gram if the API is unreachable
-        return 7500.00   
+        print("Price fetch error:", e)
+        return 7200  # fallback
 
-# ---------------- SMART TRADING LOGIC ----------------
-def get_action(price):
-    # Updated thresholds for 1 gram of gold in INR
-    if price > 8000:
-        return random.choice(["SELL", "HOLD"])
-    elif price < 7000:
-        return random.choice(["BUY", "HOLD"])
-    else:
-        return "HOLD"
-
-# ---------------- ROUTES ----------------
+# ---------------- HOME ----------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
+# ---------------- START ----------------
 @app.route("/start", methods=["POST"])
 def start():
-    global balance, gold
+    data = request.get_json()
 
-    try:
-        # force=True makes Flask try to read the JSON even if headers are slightly off
-        data = request.get_json(force=True, silent=True) or {}
-        print("RECEIVED DATA:", data)  # This will log in Render so we can debug!
+    if not data:
+        return jsonify({"error": "No data received"}), 400
 
-        investment = float(data.get("investment", 0))
+    amount = float(data.get("investment", 0))
 
-        # Break the errors apart so you know exactly which one is triggering
-        if investment <= 0:
-            return jsonify({"error": "Enter an amount greater than 0"}), 400
-            
-        if investment > balance:
-            return jsonify({"error": f"Insufficient funds! Your balance is only ₹{balance}"}), 400
+    global portfolio
+    portfolio = {
+        "balance": amount,
+        "gold": 0,
+        "initial": amount
+    }
 
-        price = get_live_gold_price()
-        action = get_action(price)
-        reward = random.uniform(-5, 5)
+    price = get_gold_price_inr()
 
-        if action == "BUY":
-            gold += investment / price
-            balance -= investment
-        elif action == "SELL" and gold > 0:
-            balance += gold * price
-            gold = 0
+    return jsonify({
+        "price": price,
+        "action": "HOLD",
+        "reward": 0,
+        "balance": portfolio["balance"],
+        "gold": portfolio["gold"],
+        "profit": 0,
+        "explanation": "Trading started successfully"
+    })
 
-        profit = balance + (gold * price) - 10000
-
-        return jsonify({
-            "price": price,
-            "action": action,
-            "reward": round(reward, 2),
-            "balance": round(balance, 2),
-            "gold": round(gold, 4),
-            "profit": round(profit, 2),
-            "explanation": f"AI decided to {action} based on market price"
-        })
-
-    except Exception as e:
-        print("START ERROR:", e)
-        return jsonify({"error": "Failed to calculate start. Try again."}), 500
-
+# ---------------- STEP ----------------
 @app.route("/step")
 def step():
-    global balance, gold
-    try:
-        price = get_live_gold_price()
-        action = get_action(price)
-        reward = random.uniform(-5, 5)
-        profit = balance + (gold * price) - 10000
+    global portfolio
 
-        return jsonify({
-            "price": price,
-            "action": action,
-            "reward": round(reward, 2),
-            "balance": round(balance, 2),
-            "gold": round(gold, 4),
-            "profit": round(profit, 2),
-            "explanation": f"Market suggests {action}"
-        })
+    price = get_gold_price_inr()
+
+    # SIMPLE LOGIC (NO RANDOM BUG)
+    if portfolio["balance"] > 0:
+        action = "BUY"
+        portfolio["gold"] = portfolio["balance"] / price
+        portfolio["balance"] = 0
+
+    elif portfolio["gold"] > 0:
+        action = "SELL"
+        portfolio["balance"] = portfolio["gold"] * price
+        portfolio["gold"] = 0
+
+    else:
+        action = "HOLD"
+
+    total_value = portfolio["balance"] + portfolio["gold"] * price
+    profit = total_value - portfolio["initial"]
+
+    return jsonify({
+        "price": round(price, 2),
+        "action": action,
+        "reward": round(profit, 2),
+        "balance": round(portfolio["balance"], 2),
+        "gold": round(portfolio["gold"], 4),
+        "profit": round(profit, 2),
+        "explanation": f"{action} executed based on portfolio"
+    })
+
+# ---------------- DOWNLOAD REPORT ----------------
+@app.route("/download")
+def download():
+    try:
+        report_text = f"""
+GOLD AI TRADING REPORT
+
+Initial Investment: ₹{portfolio['initial']}
+Current Balance: ₹{portfolio['balance']}
+Gold Holdings: {portfolio['gold']} grams
+
+Thank you for using Gold AI Trader!
+"""
+
+        with open("report.txt", "w") as f:
+            f.write(report_text)
+
+        return send_file("report.txt", as_attachment=True)
+
     except Exception as e:
-        print("STEP ERROR:", e)
-        return jsonify({"error": "Server network error"}), 500
+        return str(e)
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    print("Server starting...")
+
+    port = int(os.environ.get("PORT", 5000))
+
+    app.run(host="0.0.0.0", port=port)

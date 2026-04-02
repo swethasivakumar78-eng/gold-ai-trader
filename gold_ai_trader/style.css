@@ -1,17 +1,31 @@
-canvas {
-    max-width: 100%;
-    margin-top: 20px;
+body {
+    background-color: #121212; /* Dark Background */
+    color: #E0E0E0; /* Light Gray Text */
+    font-family: 'Inter', sans-serif;
 }
 
-.container {
-    max-width: 1000px;
-    margin: auto;
+.gold-header {
+    color: #FFD700; /* Gold Color */
+    text-align: center;
+    padding: 20px;
 }
 
-.card {
+button {
+    background-color: #333;
+    color: white;
+    border: 1px solid #FFD700;
+    padding: 10px 20px;
+    cursor: pointer;
     transition: 0.3s;
 }
 
-.card:hover {
-    transform: scale(1.02);
+button:hover {
+    background-color: #FFD700;
+    color: black;
+}
+
+#chart-container {
+    background-color: #1E1E1E;
+    border: 1px solid #333;
+    border-radius: 8px;
 }
