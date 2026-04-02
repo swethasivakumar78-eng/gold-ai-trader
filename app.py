@@ -1,20 +1,20 @@
 from flask import Flask, render_template, jsonify, request, send_file
-import yfinance as yf
 import os
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
-# ---------------- GLOBAL PORTFOLIO ----------------
 portfolio = {
     "balance": 0,
     "gold": 0,
     "initial": 0
 }
 
-# ---------------- LIVE GOLD PRICE ----------------
 def get_gold_price_inr():
     try:
         import yfinance as yf
+
+        gold = yf.Ticker("GC=F")
+        data = gold.history(period="1d")
 
         if data.empty:
             return 7200
@@ -29,20 +29,19 @@ def get_gold_price_inr():
 
     except Exception as e:
         print("Price fetch error:", e)
-        return 7200  # fallback
+        return 7200
 
-# ---------------- HOME ----------------
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# ---------------- START ----------------
+
 @app.route("/start", methods=["POST"])
 def start():
     data = request.get_json()
     amount = float(data.get("investment", 0))
 
-    global portfolio
     portfolio["balance"] = amount
     portfolio["gold"] = 0
     portfolio["initial"] = amount
@@ -58,11 +57,10 @@ def start():
         "profit": 0,
         "explanation": "Trading started"
     })
-# ---------------- STEP ----------------
+
+
 @app.route("/step")
 def step():
-    global portfolio
-
     price = get_gold_price_inr()
 
     if portfolio["balance"] > 0:
@@ -91,7 +89,7 @@ def step():
         "explanation": f"{action} executed"
     })
 
-# ---------------- DOWNLOAD REPORT ----------------
+
 @app.route("/download")
 def download():
     text = f"""
@@ -106,3 +104,9 @@ Gold: {portfolio['gold']} g
         f.write(text)
 
     return send_file("report.txt", as_attachment=True)
+
+
+if __name__ == "__main__":
+    print("Server starting...")
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
