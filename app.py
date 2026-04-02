@@ -40,18 +40,12 @@ def home():
 @app.route("/start", methods=["POST"])
 def start():
     data = request.get_json()
-
-    if not data:
-        return jsonify({"error": "No data received"}), 400
-
     amount = float(data.get("investment", 0))
 
     global portfolio
-    portfolio = {
-        "balance": amount,
-        "gold": 0,
-        "initial": amount
-    }
+    portfolio["balance"] = amount
+    portfolio["gold"] = 0
+    portfolio["initial"] = amount
 
     price = get_gold_price_inr()
 
@@ -59,12 +53,11 @@ def start():
         "price": price,
         "action": "HOLD",
         "reward": 0,
-        "balance": portfolio["balance"],
-        "gold": portfolio["gold"],
+        "balance": amount,
+        "gold": 0,
         "profit": 0,
-        "explanation": "Trading started successfully"
+        "explanation": "Trading started"
     })
-
 # ---------------- STEP ----------------
 @app.route("/step")
 def step():
@@ -72,7 +65,6 @@ def step():
 
     price = get_gold_price_inr()
 
-    # SIMPLE LOGIC (NO RANDOM BUG)
     if portfolio["balance"] > 0:
         action = "BUY"
         portfolio["gold"] = portfolio["balance"] / price
@@ -86,8 +78,8 @@ def step():
     else:
         action = "HOLD"
 
-    total_value = portfolio["balance"] + portfolio["gold"] * price
-    profit = total_value - portfolio["initial"]
+    total = portfolio["balance"] + portfolio["gold"] * price
+    profit = total - portfolio["initial"]
 
     return jsonify({
         "price": round(price, 2),
@@ -96,35 +88,21 @@ def step():
         "balance": round(portfolio["balance"], 2),
         "gold": round(portfolio["gold"], 4),
         "profit": round(profit, 2),
-        "explanation": f"{action} executed based on portfolio"
+        "explanation": f"{action} executed"
     })
 
 # ---------------- DOWNLOAD REPORT ----------------
 @app.route("/download")
 def download():
-    try:
-        report_text = f"""
-GOLD AI TRADING REPORT
+    text = f"""
+GOLD REPORT
 
-Initial Investment: ₹{portfolio['initial']}
-Current Balance: ₹{portfolio['balance']}
-Gold Holdings: {portfolio['gold']} grams
-
-Thank you for using Gold AI Trader!
+Initial: ₹{portfolio['initial']}
+Balance: ₹{portfolio['balance']}
+Gold: {portfolio['gold']} g
 """
 
-        with open("report.txt", "w") as f:
-            f.write(report_text)
+    with open("report.txt", "w") as f:
+        f.write(text)
 
-        return send_file("report.txt", as_attachment=True)
-
-    except Exception as e:
-        return str(e)
-
-# ---------------- RUN ----------------
-if __name__ == "__main__":
-    print("Server starting...")
-
-    port = int(os.environ.get("PORT", 5000))
-
-    app.run(host="0.0.0.0", port=port)
+    return send_file("report.txt", as_attachment=True)
